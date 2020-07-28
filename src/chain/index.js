@@ -26,6 +26,12 @@ export default {
     localStorage.wallet = wallet;
   },
 
+  clearWallet(){
+    localStorage.wallet = null
+  },
+  clearWalletShare(){
+    localStorage.walletShare = null
+  },
   async getKeysShare(){
     keyPair = await e2e.newKeyPair(null)
     walletShare = JSON.stringify(keyPair)

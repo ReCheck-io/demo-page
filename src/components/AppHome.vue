@@ -2,6 +2,19 @@
   <v-container scrollable>
     <v-layout scrollable>
       <v-flex xs12>
+        <v-card color="grey lighten-4" flat tile>
+          <v-toolbar dense>
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+            <v-toolbar-title>ReCheck services demo page</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+
+            <v-btn href="https://beta.recheck.io" target="_blank">beta GUI</v-btn>
+
+            <v-btn href="https://github.com/ReCheck-io" target="_blank">Github</v-btn>
+          </v-toolbar>
+        </v-card>
         <v-card>
           <v-container fill-height fluid>
             <v-layout fill-height>
@@ -48,6 +61,11 @@
           <v-card-actions v-if="!pinned">
             <v-spacer></v-spacer>
             <v-btn @click="createNewIdentity" dark color="green">Create identity</v-btn>
+            <v-spacer />
+          </v-card-actions>
+          <v-card-actions v-if="pinned">
+            <v-spacer></v-spacer>
+            <v-btn @click="clearWallet" dark color="red">Reset identity</v-btn>
             <v-spacer />
           </v-card-actions>
         </v-card>
@@ -131,7 +149,7 @@
             </v-layout>
           </v-container>
         </v-card>
-         <v-card style="margin-top:1rem">
+        <v-card style="margin-top:1rem">
           <v-container fill-height fluid>
             <v-layout fill-height>
               <v-flex>
@@ -144,8 +162,12 @@
           </v-card-title>
           <v-card-title v-if="pinnedShare">
             <div class="textLeft">
-              <span>Public address and phrase so that you can share to that account and then enter 
-               <a href="https://beta.recheck.io" target="_blank"> https://beta.recheck.io</a> with the mobile app to see if the share has been successful. 
+              <span>
+                Public address and phrase so that you can share to that account and then enter
+                <a
+                  href="https://beta.recheck.io"
+                  target="_blank"
+                >https://beta.recheck.io</a> with the mobile app to see if the share has been successful.
                 As well as the behaviour.
               </span>
               <ul>
@@ -164,6 +186,11 @@
           <v-card-actions v-if="!pinnedShare">
             <v-spacer></v-spacer>
             <v-btn @click="createNewShareIdentity" dark color="green">Create identity</v-btn>
+            <v-spacer />
+          </v-card-actions>
+          <v-card-actions v-if="pinnedShare">
+            <v-spacer></v-spacer>
+            <v-btn @click="clearWalletShare" dark color="red">Reset identity</v-btn>
             <v-spacer />
           </v-card-actions>
         </v-card>
@@ -190,18 +217,18 @@ export default {
     return {
       pinned: false,
       pinnedShare: false,
-      address:"",
+      address: "",
       publicKey: "",
       publicEncKey: "",
       privateKey: "",
       privateEncKey: "",
-      phrase:"",
-      addressShare:"",
+      phrase: "",
+      addressShare: "",
       publicKeyShare: "",
       publicEncKeyShare: "",
       privateKeyShare: "",
       privateEncKeyShare: "",
-      phraseShare:"",
+      phraseShare: "",
       uploadedFiles: [],
       uploadError: null,
       currentStatus: null,
@@ -225,10 +252,13 @@ export default {
       this.addressShare = JSON.parse(localStorage.walletShare).address;
       this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
       this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
-      this.publicEncKeyShare = JSON.parse(localStorage.walletShare).publicEncKey;
-      this.privateEncKeyShare = JSON.parse(localStorage.walletShare).secretEncKey;
+      this.publicEncKeyShare = JSON.parse(
+        localStorage.walletShare
+      ).publicEncKey;
+      this.privateEncKeyShare = JSON.parse(
+        localStorage.walletShare
+      ).secretEncKey;
       this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
-      
     },
     hasAccount() {
       if (localStorage.wallet) {
@@ -237,6 +267,13 @@ export default {
         this.pinned = false;
       }
     },
+    clearWallet() {
+      chain.clearWallet();
+    },
+    clearWalletShare() {
+      chain.clearWalletShare();
+    },
+
     hasShareAccount() {
       if (localStorage.walletShare) {
         this.pinnedShare = true;
@@ -277,8 +314,12 @@ export default {
       this.addressShare = JSON.parse(localStorage.walletShare).address;
       this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
       this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
-      this.publicEncKeyShare = JSON.parse(localStorage.walletShare).publicEncKey;
-      this.privateEncKeyShare = JSON.parse(localStorage.walletShare).secretEncKey;
+      this.publicEncKeyShare = JSON.parse(
+        localStorage.walletShare
+      ).publicEncKey;
+      this.privateEncKeyShare = JSON.parse(
+        localStorage.walletShare
+      ).secretEncKey;
       this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
     },
     reset() {
@@ -291,7 +332,7 @@ export default {
       chain.setURLandNetwork("https://beta.recheck.io", "ae", this.token);
       // handle file changes
       if (!fileList.length) return;
-      let splitFileName = fileList[0].name.split(".")
+      let splitFileName = fileList[0].name.split(".");
       // readasBinary
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -299,8 +340,8 @@ export default {
         this.payload = btoa(e.target.result);
         let fileObj = {};
         fileObj.payload = this.payload;
-        fileObj.dataName = splitFileName[0], 
-        fileObj.dataExtension = "." + splitFileName[1];
+        (fileObj.dataName = splitFileName[0]),
+          (fileObj.dataExtension = "." + splitFileName[1]);
         fileObj.category = "OTHER";
         fileObj.keywords = " ";
 
