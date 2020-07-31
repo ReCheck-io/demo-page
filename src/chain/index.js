@@ -17,7 +17,7 @@ export default {
   },
 
   async upload(fileObj, userChainId, userChainIdPubKey){
-    await e2e.store(fileObj, userChainId, userChainIdPubKey);
+    return await e2e.store(fileObj, userChainId, userChainIdPubKey);
   },
 
   async getKeys(){
@@ -25,6 +25,15 @@ export default {
     wallet = JSON.stringify(keyPair)
     localStorage.wallet = wallet;
   },
+
+  async shareFile(dataID,recipientID,userKeyPair){
+    return await e2e.share(dataID,recipientID,userKeyPair)
+ },
+
+ async signFile(dataID,recipientID,keyPair){
+  return await e2e.sign(dataID,recipientID,keyPair)
+},
+
 
   clearWallet(){
     localStorage.wallet = null

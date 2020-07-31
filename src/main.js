@@ -9,8 +9,6 @@ import chain from './chain'
 import Console from './logger'
 var SocialSharing = require('vue-social-sharing');
 
-import {store} from './store/store.js'
-
 var notifier;
 
 Vue.use(SocialSharing);
@@ -33,7 +31,6 @@ Vue.use(SocialSharing);
   new Vue({
     render: h => h(App),
     router,
-    store,
     data () {
       return {
         lastCheckTick : 0
@@ -78,33 +75,9 @@ Vue.use(SocialSharing);
           })
         }
       },
-      checkPinned() {
-        var appPath = window.location.pathname
-        Console.log('Current app URL is', appPath)
-        var isChallengeUrl = false
-        let uri = window.location.search.substring(1); 
-        let params = new URLSearchParams(uri);
-        isChallengeUrl = params.get('c')
-        let environment = process.env.NODE_ENV.split(",")
-        let apiUrl = environment[0]
-        Console.log('isChallengeUrl', isChallengeUrl)
-        Console.log('apiUrl', apiUrl)
-        let urlChallenge = ''; 
-        if (isChallengeUrl) urlChallenge =  apiUrl + '/login/' + isChallengeUrl
-        if (!chain.pinned()) {
-          if (isChallengeUrl) {
-            router.push({ name: 'AppIdentity', params: { challenge: urlChallenge } })
-          } else {
-            router.push('/')
-          }
-        } else if (isChallengeUrl) {
-          router.push({ name: 'AppCamera', params: { omitCamera: true, challenge: urlChallenge } })
-        }
-      }
     },
     mounted () {
       this.initMessaging()
-      this.checkPinned()
     }
   }).$mount('#app')
 })()

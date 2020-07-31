@@ -92,7 +92,7 @@
             <v-spacer />
           </v-card-actions>
         </v-card>
-        <v-card v-if="pinned" height="400px" style="margin-top:1rem">
+        <v-card v-if="pinned" height="500px" style="margin-top:1rem">
           <v-container fill-height fluid>
             <v-layout fill-height>
               <v-flex xs12 align-content-start align-end fill-height flexbox>
@@ -142,6 +142,14 @@
                         <a href="javascript:void(0)" @click="reset()">Try again</a>
                       </p>
                       <pre>{{ uploadError }}</pre>
+                    </div>
+                    <div>
+                      <h2>Result</h2>
+                      <p>When the transaction is successful the server will return as a result the blockchain id of the file
+                        as well as the blockchain id of the identity that initiated the transaction, the address of our test user. 
+                      </p>
+                      <p>dataID: <b> {{this.dataUploadRes}} </b></p>
+                      <p>userId: <b> {{this.idUploadRes}}</b> </p>
                     </div>
                   </div>
                 </div>
@@ -194,6 +202,52 @@
             <v-spacer />
           </v-card-actions>
         </v-card>
+
+        <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+          <v-container fill-height fluid>
+            <v-layout fill-height>
+              <v-flex>
+                <h2>Sharing a file to the second (another) user </h2>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <v-card-title>
+            <div>By clicking the button you will share the file with the second user. 
+              You can then use our <a href="https://play.google.com/store/apps/details?id=io.recheck.android" target="_blank"> <i> ReCheck app</i></a>. 
+              Click on the "Recover identity" button. If you already have an identity, backup the phrase and then reset the identity. On the recovery input 
+              the phrase of the second user to see whether there is something in the account's inbox on
+              <a href="https://beta.recheck.io" target="_blank">https://beta.recheck.io</a>.
+    
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn @click="share" dark color="green">Share file</v-btn>
+            <v-spacer />
+          </v-card-actions>
+        </v-card>
+
+        <!-- Sign -->
+        <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+          <v-container fill-height fluid>
+            <v-layout fill-height>
+              <v-flex>
+                <h2>Sign of the file</h2>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <v-card-title>
+            <div>
+              By clicking the button below you will be able to put the signature of the first user on the
+              file. By doing that the user proves, authenticates or even vouch for the contents of the file and its content.2
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn @click="sign" dark color="green">Sign</v-btn>
+            <v-spacer />
+          </v-card-actions>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
@@ -239,6 +293,11 @@ export default {
       category: "",
       name: "",
       extention: "",
+      uploadRes:"",
+      dataUploadRes:"",
+      idUploadRes:"",
+      shareRes:"",
+      signRes:"",
     };
   },
   methods: {
@@ -328,6 +387,20 @@ export default {
       this.uploadedFiles = [];
       this.uploadError = null;
     },
+    async share(){
+      if(!this.dataUploadRes || !this.address || !this.publicEncKey){
+        return "no"
+      }
+     let a = await chain.shareFile(this.dataUploadRes,this.addressShare,JSON.parse(localStorage.wallet))
+     console.log("ko staa tuk", a);
+    },
+
+    async sign(){
+      let pubAddrress = this.address.substring(3)
+      let a = await chain.signFile(this.dataUploadRes, pubAddrress, JSON.parse(localStorage.wallet))
+      console.log("a tuk ", a);
+    },
+    
     filesChange(fieldName, fileList) {
       chain.setURLandNetwork("https://beta.recheck.io", "ae", this.token);
       // handle file changes
@@ -335,17 +408,21 @@ export default {
       let splitFileName = fileList[0].name.split(".");
       // readasBinary
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         this.$emit("load", e.target.result);
         this.payload = btoa(e.target.result);
         let fileObj = {};
         fileObj.payload = this.payload;
         (fileObj.dataName = splitFileName[0]),
-          (fileObj.dataExtension = "." + splitFileName[1]);
+        (fileObj.dataExtension = "." + splitFileName[1]);
         fileObj.category = "OTHER";
         fileObj.keywords = " ";
 
-        chain.upload(fileObj, this.address, this.publicEncKey);
+       this.uploadRes = await chain.upload(fileObj, this.address, this.publicEncKey);
+       console.log("tva", this.uploadRes);
+       this.dataUploadRes = this.uploadRes.dataId;
+       this.idUploadRes = this.uploadRes.userId;
+       
       };
       reader.readAsBinaryString(fileList[0]);
     },
