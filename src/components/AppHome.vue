@@ -98,7 +98,7 @@
           <v-container fill-height fluid>
             <v-layout fill-height>
               <v-flex xs12 align-content-start align-end fill-height flexbox>
-                <h2>Upload a file</h2>
+                <h2>Upload a file that is less than 5 mb</h2>
                 <div>
                   <div class="container">
                     <!--UPLOAD-->
