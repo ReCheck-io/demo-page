@@ -13,7 +13,7 @@
             <v-btn href="https://beta.recheck.io" target="_blank">beta GUI</v-btn>
 
             <v-btn href="https://github.com/ReCheck-io" target="_blank">Github</v-btn>
-            
+
             <v-btn @click="instructions">About</v-btn>
           </v-toolbar>
         </v-card>
@@ -236,7 +236,7 @@
                 href="https://beta.recheck.io"
                 target="_blank"
               >https://beta.recheck.io</a>
-.
+              .
             </div>
           </v-card-title>
           <v-card-actions>
@@ -349,11 +349,28 @@ export default {
       alert("You have to get a token to complete this action.");
       this.reset();
     },
+    noUser(){
+      alert("You need to get second identity to share to.");
+    },
     clearWallet() {
       chain.clearWallet();
+      this.address = "";
+      this.publicKey = "";
+      this.privateKey = "";
+      this.publicEncKey = "";
+      this.privateEncKey = "";
+      this.phrase = "";
+      this.pinned = false;
     },
     clearWalletShare() {
       chain.clearWalletShare();
+      this.addressShare = "";
+      this.publicKeyShare = "";
+      this.privateKeyShare = "";
+      this.publicEncKeyShare = "";
+      this.privateEncKeyShare = "";
+      this.phraseShare = "";
+      this.pinnedShare = false
     },
 
     hasShareAccount() {
@@ -392,11 +409,13 @@ export default {
       this.$root.$emit("progress_on");
       await chain.getKeysShare();
       this.pinnedShare = true;
-      await chain.requestForTokenShareIdentity(JSON.parse(localStorage.walletShare));
+      await chain.requestForTokenShareIdentity(
+        JSON.parse(localStorage.walletShare)
+      );
       this.$root.$emit("walletEvent");
       this.$root.$emit("progress_off");
       this.$root.$emit("error_on", "Identity created successfully!", "green");
-      this.token="";
+      this.token = "";
       this.addressShare = JSON.parse(localStorage.walletShare).address;
       this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
       this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
@@ -415,8 +434,11 @@ export default {
       this.uploadError = null;
     },
     async share() {
-       if (!this.token) {
-        return this.noToken();
+      if (!this.token) {
+      return this.noToken();
+      }
+      if(!localStorage.walletShare){
+      return this.noUser();
       }
       if (!this.dataUploadRes || !this.address || !this.publicEncKey) {
         return "no";
@@ -425,16 +447,22 @@ export default {
         this.dataUploadRes,
         this.addressShare,
         JSON.parse(localStorage.wallet)
-      );
+      ).catch((err) => {
+            let i;
+            let text = "";
+            for (i = 0; i < err.length; i++) {
+              console.log(err[i].message.EN);
+             text += err[i].message.EN + " \n ";
+              }
+            alert(text)
+          });
       if (res) {
         alert("Share has been successful!");
-      } else {
-        alert("There has been an error.");
       }
     },
 
     async sign() {
-       if (!this.token) {
+      if (!this.token) {
         return this.noToken();
       }
       let pubAddrress = this.address.substring(3);
@@ -442,11 +470,17 @@ export default {
         this.dataUploadRes,
         pubAddrress,
         JSON.parse(localStorage.wallet)
-      );
+      ).catch((err) => {
+            let i;
+            let text = "";
+            for (i = 0; i < err.length; i++) {
+              console.log(err[i].message.EN);
+             text += err[i].message.EN + " \n ";
+              }
+            alert(text)
+          });
       if (res) {
         alert("Sign has been successful!");
-      } else {
-        alert("There has been an error.");
       }
     },
 
@@ -476,22 +510,30 @@ export default {
         fileObj.category = "OTHER";
         fileObj.keywords = " ";
         this.$root.$emit("progress_on");
-        this.uploadRes = await chain.upload(
-          fileObj,
-          this.address,
-          this.publicEncKey
-        );
-        this.$root.$emit("walletEvent");
-        this.$root.$emit("progress_off");
-        setTimeout(function () {
-          alert("File has been uploaded");
-        }, 10000);
+        this.uploadRes = await chain
+          .upload(fileObj, this.address, this.publicEncKey)
+          .catch((err) => {
+            let i;
+            let text = "";
+            for (i = 0; i < err.length; i++) {
+              console.log(err[i].message.EN);
+             text += err[i].message.EN + " \n ";
+              }
+            alert(text)
+          });
         if (this.uploadRes) {
+          setTimeout(function () {
+          }, 10000);
+          alert("File has been uploaded");
           console.log("tva", this.uploadRes);
           this.dataUploadRes = this.uploadRes.dataId;
           this.idUploadRes = this.uploadRes.userId;
-        } else if(!this.uploadRes) {
-          alert("You cannot upload the same file twice and the file has to be less than 5 MB");
+          this.$root.$emit("walletEvent");
+          this.$root.$emit("progress_off");
+
+        } else if (!this.uploadRes) {
+          this.$root.$emit("walletEvent");
+          this.$root.$emit("progress_off");
         }
       };
       reader.readAsBinaryString(fileList[0]);
