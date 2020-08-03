@@ -17,8 +17,6 @@ Vue.use(SocialSharing);
   var userAgent = window.navigator.userAgent;
   if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
     Console.log('Safari Mobile')
-  } else {
-    notifier = require('./notifications')  
   }
 
   process.versions = {node: '11.2.0'}
