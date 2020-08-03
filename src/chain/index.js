@@ -63,6 +63,11 @@ export default {
     let token = await e2e.login(keyPair)
     localStorage.lastRtnToken = token
   },
+  async requestForTokenShareIdentity(keyPair){
+    this.setURLandNetwork("https://beta.recheck.io", "ae")
+    let token = await e2e.login(keyPair)
+    localStorage.rtnTokenForShareIdentity = token
+  },
 
   init: async function (password) {
     Console.log('init')

@@ -13,6 +13,8 @@
             <v-btn href="https://beta.recheck.io" target="_blank">beta GUI</v-btn>
 
             <v-btn href="https://github.com/ReCheck-io" target="_blank">Github</v-btn>
+            
+            <v-btn @click="instructions">About</v-btn>
           </v-toolbar>
         </v-card>
         <v-card>
@@ -145,11 +147,18 @@
                     </div>
                     <div>
                       <h2>Result</h2>
-                      <p>When the transaction is successful the server will return as a result the blockchain id of the file
-                        as well as the blockchain id of the identity that initiated the transaction, the address of our test user. 
+                      <p>
+                        When the transaction is successful the server will return as a result the blockchain id of the file
+                        as well as the blockchain id of the identity that initiated the transaction, the address of our test user.
                       </p>
-                      <p>dataID: <b> {{this.dataUploadRes}} </b></p>
-                      <p>userId: <b> {{this.idUploadRes}}</b> </p>
+                      <p>
+                        dataID:
+                        <b>{{this.dataUploadRes}}</b>
+                      </p>
+                      <p>
+                        userId:
+                        <b>{{this.idUploadRes}}</b>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -207,17 +216,27 @@
           <v-container fill-height fluid>
             <v-layout fill-height>
               <v-flex>
-                <h2>Sharing a file to the second (another) user </h2>
+                <h2>Sharing a file to the second (another) user</h2>
               </v-flex>
             </v-layout>
           </v-container>
           <v-card-title>
-            <div>By clicking the button you will share the file with the second user. 
-              You can then use our <a href="https://play.google.com/store/apps/details?id=io.recheck.android" target="_blank"> <i> ReCheck app</i></a>. 
-              Click on the "Recover identity" button. If you already have an identity, backup the phrase and then reset the identity. On the recovery input 
+            <div>
+              By clicking the button you will share the file with the second user.
+              You can then use our
+              <a
+                href="https://play.google.com/store/apps/details?id=io.recheck.android"
+                target="_blank"
+              >
+                <i>ReCheck app</i>
+              </a>.
+              Click on the "Recover identity" button. If you already have an identity, backup the phrase and then reset the identity. On the recovery input
               the phrase of the second user to see whether there is something in the account's inbox on
-              <a href="https://beta.recheck.io" target="_blank">https://beta.recheck.io</a>.
-    
+              <a
+                href="https://beta.recheck.io"
+                target="_blank"
+              >https://beta.recheck.io</a>
+.
             </div>
           </v-card-title>
           <v-card-actions>
@@ -293,11 +312,11 @@ export default {
       category: "",
       name: "",
       extention: "",
-      uploadRes:"",
-      dataUploadRes:"",
-      idUploadRes:"",
-      shareRes:"",
-      signRes:"",
+      uploadRes: "",
+      dataUploadRes: "",
+      idUploadRes: "",
+      shareRes: "",
+      signRes: "",
     };
   },
   methods: {
@@ -326,6 +345,10 @@ export default {
         this.pinned = false;
       }
     },
+    noToken() {
+      alert("You have to get a token to complete this action.");
+      this.reset();
+    },
     clearWallet() {
       chain.clearWallet();
     },
@@ -344,6 +367,7 @@ export default {
     async requestToken() {
       await chain.requestForToken(JSON.parse(localStorage.wallet));
       this.token = localStorage.lastRtnToken;
+      this.reset();
     },
 
     async createNewIdentity() {
@@ -360,16 +384,19 @@ export default {
       this.publicEncKey = JSON.parse(localStorage.wallet).publicEncKey;
       this.privateEncKey = JSON.parse(localStorage.wallet).secretEncKey;
       this.phrase = JSON.parse(localStorage.wallet).phrase;
+
+      this.instructions();
     },
 
     async createNewShareIdentity() {
       this.$root.$emit("progress_on");
       await chain.getKeysShare();
       this.pinnedShare = true;
+      await chain.requestForTokenShareIdentity(JSON.parse(localStorage.walletShare));
       this.$root.$emit("walletEvent");
       this.$root.$emit("progress_off");
       this.$root.$emit("error_on", "Identity created successfully!", "green");
-
+      this.token="";
       this.addressShare = JSON.parse(localStorage.walletShare).address;
       this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
       this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
@@ -387,21 +414,52 @@ export default {
       this.uploadedFiles = [];
       this.uploadError = null;
     },
-    async share(){
-      if(!this.dataUploadRes || !this.address || !this.publicEncKey){
-        return "no"
+    async share() {
+       if (!this.token) {
+        return this.noToken();
       }
-     let a = await chain.shareFile(this.dataUploadRes,this.addressShare,JSON.parse(localStorage.wallet))
-     console.log("ko staa tuk", a);
+      if (!this.dataUploadRes || !this.address || !this.publicEncKey) {
+        return "no";
+      }
+      let res = await chain.shareFile(
+        this.dataUploadRes,
+        this.addressShare,
+        JSON.parse(localStorage.wallet)
+      );
+      if (res) {
+        alert("Share has been successful!");
+      } else {
+        alert("There has been an error.");
+      }
     },
 
-    async sign(){
-      let pubAddrress = this.address.substring(3)
-      let a = await chain.signFile(this.dataUploadRes, pubAddrress, JSON.parse(localStorage.wallet))
-      console.log("a tuk ", a);
+    async sign() {
+       if (!this.token) {
+        return this.noToken();
+      }
+      let pubAddrress = this.address.substring(3);
+      let res = await chain.signFile(
+        this.dataUploadRes,
+        pubAddrress,
+        JSON.parse(localStorage.wallet)
+      );
+      if (res) {
+        alert("Sign has been successful!");
+      } else {
+        alert("There has been an error.");
+      }
     },
-    
+
+    instructions() {
+      alert(
+        "Welcome to our Demo page. The flow is the following: First you have to create an identity it will show you the keys an identity possess and the secret phrase that is used for recovering the identity. Then you will have to get a token in order to upload a file to the blockchain. Next you will want to share this file with someone, that means that you will have to create a second account to share to. There are two more options 'Share' and 'Sign'. Signing means that you validate the file to be authentic. You can then use the phrases of both identities and check the transactions in https://beta.recheck.io. Thank you for your time."
+      );
+    },
     filesChange(fieldName, fileList) {
+      this.reset();
+      if (!this.token) {
+        return this.noToken();
+      }
       chain.setURLandNetwork("https://beta.recheck.io", "ae", this.token);
       // handle file changes
       if (!fileList.length) return;
@@ -414,15 +472,27 @@ export default {
         let fileObj = {};
         fileObj.payload = this.payload;
         (fileObj.dataName = splitFileName[0]),
-        (fileObj.dataExtension = "." + splitFileName[1]);
+          (fileObj.dataExtension = "." + splitFileName[1]);
         fileObj.category = "OTHER";
         fileObj.keywords = " ";
-
-       this.uploadRes = await chain.upload(fileObj, this.address, this.publicEncKey);
-       console.log("tva", this.uploadRes);
-       this.dataUploadRes = this.uploadRes.dataId;
-       this.idUploadRes = this.uploadRes.userId;
-       
+        this.$root.$emit("progress_on");
+        this.uploadRes = await chain.upload(
+          fileObj,
+          this.address,
+          this.publicEncKey
+        );
+        this.$root.$emit("walletEvent");
+        this.$root.$emit("progress_off");
+        setTimeout(function () {
+          alert("File has been uploaded");
+        }, 10000);
+        if (this.uploadRes) {
+          console.log("tva", this.uploadRes);
+          this.dataUploadRes = this.uploadRes.dataId;
+          this.idUploadRes = this.uploadRes.userId;
+        } else if(!this.uploadRes) {
+          alert("You cannot upload the same file twice and the file has to be less than 5 MB");
+        }
       };
       reader.readAsBinaryString(fileList[0]);
     },
