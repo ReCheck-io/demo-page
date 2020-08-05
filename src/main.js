@@ -7,11 +7,11 @@ import VueQrcodeReader from 'vue-qrcode-reader'
 import chain from './chain'
 // import './registerServiceWorker'
 import Console from './logger'
-var SocialSharing = require('vue-social-sharing');
+// var SocialSharing = require('vue-social-sharing');
 
-var notifier;
+// var notifier;
 
-Vue.use(SocialSharing);
+// Vue.use(SocialSharing);
 
 (async () => {
   var userAgent = window.navigator.userAgent;
@@ -54,28 +54,6 @@ Vue.use(SocialSharing);
           })
         }
       },
-      initMessaging() {
-        var userAgent = window.navigator.userAgent;
-        if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
-          // iPad or iPhone
-        } else {
-          var messaging = notifier.init((err, token) => {
-            if (!err) {
-              localStorage.lastFirebaseToken = token
-              Console.log('Set localStorage.lastFirebaseToken to', token)
-            } else {
-              Console.log('Push notifications are disabled')
-              this.$root.$emit('error_on', 'Push notifications disabled.', 'red')
-            }
-          })
-          notifier.onMessage(messaging, (payload) => {
-            this.$root.$emit('error_on', payload.data.body, 'blue')
-          })
-        }
-      },
     },
-    mounted () {
-      this.initMessaging()
-    }
   }).$mount('#app')
 })()

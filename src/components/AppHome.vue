@@ -71,101 +71,105 @@
             <v-spacer />
           </v-card-actions>
         </v-card>
-        <v-card v-if="pinned" style="margin-top:1rem">
-          <v-container fill-height fluid>
-            <v-layout fill-height>
-              <v-flex>
-                <h2>Request for a token</h2>
-              </v-flex>
-            </v-layout>
-          </v-container>
-          <v-card-title v-if="pinned">
-            <div class="textLeft">
-              <p>The token is needed for requesting queries from the backend</p>
-              <p v-if="this.token">
-                Your token is
-                <strong>{{this.token}}</strong>
-              </p>
-            </div>
-          </v-card-title>
-          <v-card-actions v-if="pinned">
-            <v-spacer></v-spacer>
-            <v-btn @click="requestToken" dark color="green">Get Token</v-btn>
-            <v-spacer />
-          </v-card-actions>
-        </v-card>
-        <v-card v-if="pinned" height="500px" style="margin-top:1rem">
-          <v-container fill-height fluid>
-            <v-layout fill-height>
-              <v-flex xs12 align-content-start align-end fill-height flexbox>
-                <h2>Upload a file that is less than 5 mb</h2>
-                <div>
-                  <div class="container">
-                    <!--UPLOAD-->
-                    <form enctype="multipart/form-data" novalidate v-if="isInitial || isSaving">
-                      <div class="dropbox">
-                        <input
-                          type="file"
-                          multiple
-                          :name="uploadFieldName"
-                          :disabled="isSaving"
-                          @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"
-                          class="input-file"
-                        />
+        <div v-if="nextStep >0">
+          <v-card v-if="pinned" style="margin-top:1rem">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex>
+                  <h2>Request for a token</h2>
+                </v-flex>
+              </v-layout>
+            </v-container>
+            <v-card-title v-if="pinned">
+              <div class="textLeft">
+                <p>The token is needed for requesting queries from the backend</p>
+                <p v-if="this.token">
+                  Your token is
+                  <strong>{{this.token}}</strong>
+                </p>
+              </div>
+            </v-card-title>
+            <v-card-actions v-if="pinned">
+              <v-spacer></v-spacer>
+              <v-btn @click="requestToken" dark color="green">Get Token</v-btn>
+              <v-spacer />
+            </v-card-actions>
+          </v-card>
+        </div>
+        <div v-if="nextStep>1">
+          <v-card v-if="pinned" height="500px" style="margin-top:1rem">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex xs12 align-content-start align-end fill-height flexbox>
+                  <h2>Upload a file that is less than 5 mb</h2>
+                  <div>
+                    <div class="container">
+                      <!--UPLOAD-->
+                      <form enctype="multipart/form-data" novalidate v-if="isInitial || isSaving">
+                        <div class="dropbox">
+                          <input
+                            type="file"
+                            multiple
+                            :name="uploadFieldName"
+                            :disabled="isSaving"
+                            @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"
+                            class="input-file"
+                          />
+                        </div>
+                        <div>
+                          <p v-if="isInitial">
+                            Drag your file(s) here to begin
+                            <br />or click to browse
+                          </p>
+                          <p v-if="isSaving">Uploading {{ fileCount }} files...</p>
+                        </div>
+                      </form>
+                      <!--SUCCESS-->
+                      <div v-if="isSuccess">
+                        <h2>Uploaded {{ uploadedFiles.length }} file(s) successfully.</h2>
+                        <p>
+                          <a href="javascript:void(0)" @click="reset()">Upload again</a>
+                        </p>
+                        <ul class="list-unstyled">
+                          <li v-for="item in uploadedFiles" v-bind:key="item">
+                            <img
+                              :src="item.url"
+                              class="img-responsive img-thumbnail"
+                              :alt="item.originalName"
+                            />
+                          </li>
+                        </ul>
+                      </div>
+                      <!--FAILED-->
+                      <div v-if="isFailed">
+                        <h2>Uploaded failed.</h2>
+                        <p>
+                          <a href="javascript:void(0)" @click="reset()">Try again</a>
+                        </p>
+                        <pre>{{ uploadError }}</pre>
                       </div>
                       <div>
-                        <p v-if="isInitial">
-                          Drag your file(s) here to begin
-                          <br />or click to browse
+                        <h2>Result</h2>
+                        <p>
+                          When the transaction is successful the server will return as a result the blockchain id of the file
+                          as well as the blockchain id of the identity that initiated the transaction, the address of our test user.
                         </p>
-                        <p v-if="isSaving">Uploading {{ fileCount }} files...</p>
+                        <p>
+                          dataID:
+                          <b>{{this.dataUploadRes}}</b>
+                        </p>
+                        <p>
+                          userId:
+                          <b>{{this.idUploadRes}}</b>
+                        </p>
                       </div>
-                    </form>
-                    <!--SUCCESS-->
-                    <div v-if="isSuccess">
-                      <h2>Uploaded {{ uploadedFiles.length }} file(s) successfully.</h2>
-                      <p>
-                        <a href="javascript:void(0)" @click="reset()">Upload again</a>
-                      </p>
-                      <ul class="list-unstyled">
-                        <li v-for="item in uploadedFiles" v-bind:key="item">
-                          <img
-                            :src="item.url"
-                            class="img-responsive img-thumbnail"
-                            :alt="item.originalName"
-                          />
-                        </li>
-                      </ul>
-                    </div>
-                    <!--FAILED-->
-                    <div v-if="isFailed">
-                      <h2>Uploaded failed.</h2>
-                      <p>
-                        <a href="javascript:void(0)" @click="reset()">Try again</a>
-                      </p>
-                      <pre>{{ uploadError }}</pre>
-                    </div>
-                    <div>
-                      <h2>Result</h2>
-                      <p>
-                        When the transaction is successful the server will return as a result the blockchain id of the file
-                        as well as the blockchain id of the identity that initiated the transaction, the address of our test user.
-                      </p>
-                      <p>
-                        dataID:
-                        <b>{{this.dataUploadRes}}</b>
-                      </p>
-                      <p>
-                        userId:
-                        <b>{{this.idUploadRes}}</b>
-                      </p>
                     </div>
                   </div>
-                </div>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card>
+        </div>
         <v-card style="margin-top:1rem">
           <v-container fill-height fluid>
             <v-layout fill-height>
@@ -211,62 +215,100 @@
             <v-spacer />
           </v-card-actions>
         </v-card>
-
-        <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
-          <v-container fill-height fluid>
-            <v-layout fill-height>
-              <v-flex>
-                <h2>Sharing a file to the second (another) user</h2>
-              </v-flex>
-            </v-layout>
-          </v-container>
-          <v-card-title>
-            <div>
-              By clicking the button you will share the file with the second user.
-              You can then use our
-              <a
-                href="https://play.google.com/store/apps/details?id=io.recheck.android"
-                target="_blank"
-              >
-                <i>ReCheck app</i>
-              </a>.
-              Click on the "Recover identity" button. If you already have an identity, backup the phrase and then reset the identity. On the recovery input
-              the phrase of the second user to see whether there is something in the account's inbox on
-              <a
-                href="https://beta.recheck.io"
-                target="_blank"
-              >https://beta.recheck.io</a>
-              .
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="share" dark color="green">Share file</v-btn>
-            <v-spacer />
-          </v-card-actions>
-        </v-card>
-
+        <div v-if="nextStep>2">
+          <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex>
+                  <h2>Sharing a file to the second (another) user</h2>
+                </v-flex>
+              </v-layout>
+            </v-container>
+            <v-card-title>
+              <div>
+                By clicking the button you will share the file with the second user.
+                You can then use our
+                <a
+                  href="https://play.google.com/store/apps/details?id=io.recheck.android"
+                  target="_blank"
+                >
+                  <i>ReCheck app</i>
+                </a>.
+                Click on the "Recover identity" button. If you already have an identity, backup the phrase and then reset the identity. On the recovery input
+                the phrase of the second user to see whether there is something in the account's inbox on
+                <a
+                  href="https://beta.recheck.io"
+                  target="_blank"
+                >https://beta.recheck.io</a>
+                .
+              </div>
+            </v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="share" dark color="green">Share file</v-btn>
+              <v-spacer />
+            </v-card-actions>
+          </v-card>
+        </div>
         <!-- Sign -->
-        <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
-          <v-container fill-height fluid>
-            <v-layout fill-height>
-              <v-flex>
-                <h2>Sign of the file</h2>
-              </v-flex>
-            </v-layout>
-          </v-container>
-          <v-card-title>
-            <div>
-              By clicking the button below you will be able to put the signature of the first user on the
-              file. By doing that the user proves, authenticates or even vouch for the contents of the file and its content.2
+        <div v-if="nextStep > 3">
+          <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex>
+                  <h2>Sign of the file</h2>
+                </v-flex>
+              </v-layout>
+            </v-container>
+            <v-card-title>
+              <div>
+                By clicking the button below you will be able to put the signature of the first user on the
+                file. By doing that the user proves, authenticates or even vouch for the contents of the file and its content.2
+              </div>
+            </v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="sign" dark color="green">Sign</v-btn>
+              <v-spacer />
+            </v-card-actions>
+          </v-card>
+        </div>
+        <!-- Tx History -->
+        <div v-if="nextStep > 4">
+          <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex>
+                  <h2>Transaction History of the file</h2>
+                </v-flex>
+              </v-layout>
+            </v-container>
+            <v-card-title>
+              <div>
+                Bear in mind that the transactions do need some time before they are recorded on the blockchain. 
+              </div>
+            </v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="txHistory" dark color="green">Transaction History</v-btn>
+              <v-spacer />
+            </v-card-actions>
+            <div v-if="transactions.length >0">
+              <ul>
+                <li
+                  v-for="tx in transactions.slice(1)"
+                  :key="tx.trailHash"
+                > <span>Chain ID of the data </span><b> {{ tx.dataId }}</b> <br>
+                <span>The Chain ID of the one who executed the transaction </span> <b>{{ tx.executor }}</b> <br>
+                <span>The recepient of the file (in this demo it will matter only about the sharing) </span> <b>{{tx.recepient}}</b> <br>
+                <span>The type of request executed </span> <b> {{tx.requestType}}</b> <br>
+                <span>The unique ID of the transaction </span> <b>{{tx.trailHash}}</b> <br>
+                <span>The timestamp of the transacition </span> <b>{{tx.timestamp}}</b> <br> <br>
+                 </li>
+              </ul>
             </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="sign" dark color="green">Sign</v-btn>
-            <v-spacer />
-          </v-card-actions>
-        </v-card>
+          </v-card>
+          </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -317,6 +359,8 @@ export default {
       idUploadRes: "",
       shareRes: "",
       signRes: "",
+      nextStep: 1,
+      transactions: [{}],
     };
   },
   methods: {
@@ -349,7 +393,7 @@ export default {
       alert("You have to get a token to complete this action.");
       this.reset();
     },
-    noUser(){
+    noUser() {
       alert("You need to get second identity to share to.");
     },
     clearWallet() {
@@ -361,6 +405,7 @@ export default {
       this.privateEncKey = "";
       this.phrase = "";
       this.pinned = false;
+      this.nextStep = 1;
     },
     clearWalletShare() {
       chain.clearWalletShare();
@@ -370,7 +415,7 @@ export default {
       this.publicEncKeyShare = "";
       this.privateEncKeyShare = "";
       this.phraseShare = "";
-      this.pinnedShare = false
+      this.pinnedShare = false;
     },
 
     hasShareAccount() {
@@ -384,6 +429,7 @@ export default {
     async requestToken() {
       await chain.requestForToken(JSON.parse(localStorage.wallet));
       this.token = localStorage.lastRtnToken;
+      this.nextStep = 2;
       this.reset();
     },
 
@@ -401,8 +447,6 @@ export default {
       this.publicEncKey = JSON.parse(localStorage.wallet).publicEncKey;
       this.privateEncKey = JSON.parse(localStorage.wallet).secretEncKey;
       this.phrase = JSON.parse(localStorage.wallet).phrase;
-
-      this.instructions();
     },
 
     async createNewShareIdentity() {
@@ -426,6 +470,7 @@ export default {
         localStorage.walletShare
       ).secretEncKey;
       this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
+      await this.requestToken();
     },
     reset() {
       // reset form to initial state
@@ -435,29 +480,31 @@ export default {
     },
     async share() {
       if (!this.token) {
-      return this.noToken();
+        return this.noToken();
       }
-      if(!localStorage.walletShare){
-      return this.noUser();
+      if (!localStorage.walletShare) {
+        return this.noUser();
       }
       if (!this.dataUploadRes || !this.address || !this.publicEncKey) {
         return "no";
       }
-      let res = await chain.shareFile(
-        this.dataUploadRes,
-        this.addressShare,
-        JSON.parse(localStorage.wallet)
-      ).catch((err) => {
-            let i;
-            let text = "";
-            for (i = 0; i < err.length; i++) {
-              console.log(err[i].message.EN);
-             text += err[i].message.EN + " \n ";
-              }
-            alert(text)
-          });
+      let res = await chain
+        .shareFile(
+          this.dataUploadRes,
+          this.addressShare,
+          JSON.parse(localStorage.wallet)
+        )
+        .catch((err) => {
+          let i;
+          let text = "";
+          for (i = 0; i < err.length; i++) {
+            text += err[i].message.EN + " \n ";
+          }
+          alert(text);
+        });
       if (res) {
         alert("Share has been successful!");
+        this.nextStep = 4;
       }
     },
 
@@ -466,22 +513,54 @@ export default {
         return this.noToken();
       }
       let pubAddrress = this.address.substring(3);
-      let res = await chain.signFile(
-        this.dataUploadRes,
-        pubAddrress,
-        JSON.parse(localStorage.wallet)
-      ).catch((err) => {
-            let i;
-            let text = "";
-            for (i = 0; i < err.length; i++) {
-              console.log(err[i].message.EN);
-             text += err[i].message.EN + " \n ";
-              }
-            alert(text)
-          });
+      let res = await chain
+        .signFile(
+          this.dataUploadRes,
+          pubAddrress,
+          JSON.parse(localStorage.wallet)
+        )
+        .catch((err) => {
+          let i;
+          let text = "";
+          for (i = 0; i < err.length; i++) {
+            text += err[i].message.EN + " \n ";
+          }
+          alert(text);
+        });
+
       if (res) {
         alert("Sign has been successful!");
+        this.nextStep = 5;
       }
+    },
+
+    async txHistory() {
+        this.transactions = [{}];
+        let pubAddrress = this.address.substring(3);
+        let tx = await chain.checkTx(this.dataUploadRes, pubAddrress);
+        for (let i = 0; i < tx.length; i++) {
+          let res = {};
+          let dataId = tx[i].dataId;
+          let executor = tx[i].executorId;
+          let recepient = tx[i].recepientId;
+          let requestType = tx[i].requestType;
+          let trailHash = tx[i].trailHash;
+          let timestamp = tx[i].txReceiptTimestamp;
+          res = {
+            dataId: dataId,
+            executor: executor,
+            recepient: recepient,
+            requestType: requestType,
+            trailHash: trailHash,
+            timestamp: timestamp,
+          };
+          this.transactions.push(res);
+        }
+        if(this.transactions.length <2){
+          alert("transactions are still recording")
+        }
+
+    
     },
 
     instructions() {
@@ -489,6 +568,7 @@ export default {
         "Welcome to our Demo page. The flow is the following: First you have to create an identity it will show you the keys an identity possess and the secret phrase that is used for recovering the identity. Then you will have to get a token in order to upload a file to the blockchain. Next you will want to share this file with someone, that means that you will have to create a second account to share to. There are two more options 'Share' and 'Sign'. Signing means that you validate the file to be authentic. You can then use the phrases of both identities and check the transactions in https://beta.recheck.io. Thank you for your time."
       );
     },
+
     filesChange(fieldName, fileList) {
       this.reset();
       if (!this.token) {
@@ -516,21 +596,18 @@ export default {
             let i;
             let text = "";
             for (i = 0; i < err.length; i++) {
-              console.log(err[i].message.EN);
-             text += err[i].message.EN + " \n ";
-              }
-            alert(text)
+              text += err[i].message.EN + " \n ";
+            }
+            alert(text);
           });
         if (this.uploadRes) {
-          setTimeout(function () {
-          }, 10000);
+          setTimeout(function () {}, 10000);
           alert("File has been uploaded");
-          console.log("tva", this.uploadRes);
           this.dataUploadRes = this.uploadRes.dataId;
           this.idUploadRes = this.uploadRes.userId;
+          this.nextStep = 3;
           this.$root.$emit("walletEvent");
           this.$root.$emit("progress_off");
-
         } else if (!this.uploadRes) {
           this.$root.$emit("walletEvent");
           this.$root.$emit("progress_off");

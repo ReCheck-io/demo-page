@@ -1,6 +1,6 @@
 const Console = require('../logger')
 let e2e = require('recheck-clientjs-library')
-var aes256 = require('aes256')
+// var aes256 = require('aes256')
 import axios from 'axios'
 
 // eslint-disable-next-line
@@ -8,158 +8,47 @@ var wallet = null
 var walletShare = null
 var keyPair = null
 
-let environment = process.env.NODE_ENV.split(",")
-let apiUrl = environment[0]
+// let environment = process.env.NODE_ENV.split(",")
+// let apiUrl = environment[0]
 export default {
-  setURLandNetwork: function(apiURL, network, token){
-    apiUrl = apiURL;
+  setURLandNetwork: function (apiURL, network, token) {
     e2e.init(apiURL, network, token);
   },
 
-  async upload(fileObj, userChainId, userChainIdPubKey){
+  async upload(fileObj, userChainId, userChainIdPubKey) {
     return await e2e.store(fileObj, userChainId, userChainIdPubKey);
   },
 
-  async getKeys(){
+  async getKeys() {
     keyPair = await e2e.newKeyPair(null)
     wallet = JSON.stringify(keyPair)
     localStorage.wallet = wallet;
   },
 
-  async shareFile(dataID,recipientID,userKeyPair){
-    return await e2e.share(dataID,recipientID,userKeyPair)
- },
+  async shareFile(dataID, recipientID, userKeyPair) {
+    return await e2e.share(dataID, recipientID, userKeyPair)
+  },
 
- async signFile(dataID,recipientID,keyPair){
-  return await e2e.sign(dataID,recipientID,keyPair)
-},
+  async signFile(dataID, recipientID, keyPair) {
+    return await e2e.sign(dataID, recipientID, keyPair)
+  },
 
-
-  clearWallet(){
+  clearWallet() {
     localStorage.wallet = null
   },
-  clearWalletShare(){
+
+  clearWalletShare() {
     localStorage.walletShare = null
   },
-  async getKeysShare(){
+
+  async getKeysShare() {
     keyPair = await e2e.newKeyPair(null)
     walletShare = JSON.stringify(keyPair)
     localStorage.walletShare = walletShare;
   },
 
-  getChallenge(callback){
+  getChallenge(callback) {
     axios.get("https://beta.recheck.io/login/challenge")
-    .then((res) => {
-      callback(res.data);
-    })
-    .catch((err) => {
-      Console.log('checkUser:', err)
-      callback(null)
-    })
-  },
-
-  async requestForToken(keyPair){
-    this.setURLandNetwork("https://beta.recheck.io", "ae")
-    let token = await e2e.login(keyPair)
-    localStorage.lastRtnToken = token
-  },
-  async requestForTokenShareIdentity(keyPair){
-    this.setURLandNetwork("https://beta.recheck.io", "ae")
-    let token = await e2e.login(keyPair)
-    localStorage.rtnTokenForShareIdentity = token
-  },
-
-  init: async function (password) {
-    Console.log('init')
-    e2e.init(apiUrl)    
-    if (!localStorage.walletAe1) {
-      Console.log('Wallet does not exist yet. Will create one.')
-      keyPair = await e2e.newKeyPair(null)
-      wallet = JSON.stringify(keyPair)
-      Console.log('Wallet created with account', keyPair)
-      this.saveWallet(keyPair, password)
-      Console.log('Wallet saved.')
-    } else {
-      Console.log('wallet account exists')
-    }
-    return wallet
-  },
-
-  pinned: function() {
-    var privateKey = localStorage.walletAe1
-    if (typeof privateKey === 'undefined') return false
-    Console.log('pinned: privateKey =', privateKey)
-    var storedSha3 = localStorage.walletSha3Ae
-    Console.log('pinned: storedSha3 =', storedSha3)
-    Console.log('pinned: typeof storedSha3 === undefined =', (typeof storedSha3 === 'undefined'))
-    var computedSha3 = e2e.getHash(privateKey)
-    Console.log('pinned: computedSha3 =', computedSha3)
-    Console.log('pinned: (computedSha3 !== storedSha3) =', (computedSha3 !== storedSha3))
-    if (typeof storedSha3 === 'undefined') return false
-    return (computedSha3 !== storedSha3) 
-  },
-
-  checkPassword: function(password) {
-    Console.log('password', password)
-    return e2e.getHash(aes256.decrypt(password, localStorage.walletAe1)) === localStorage.walletSha3Ae
-  },
-
-  saveWallet: function (keyPair, password) {
-    let keyPairStr = JSON.stringify(keyPair)
-    Console.log('saveWallet with password', password)
-    localStorage.walletSha3Ae = e2e.getHash(keyPairStr)
-    var encrypted = aes256.encrypt(password, keyPairStr)
-    Console.log('encrypted private key', encrypted)
-    localStorage.walletAe1 = encrypted // web3.eth.accounts.wallet.accounts[0].privateKey // encrypt wallet
-    localStorage.publicAddress = keyPair.address
-    this.resetWallet()
-  },
-
-  resetWallet: function() {
-    wallet = null
-    keyPair = null
-  },
-  
-  loadWallet: function (password) {
-    if (!this.checkPassword(password)) {
-      return 'authError'
-    }
-    var encrypted = localStorage.walletAe1
-    if (typeof encrypted === 'undefined') return encrypted
-    var account = aes256.decrypt(password, encrypted) // decrypt encrypted
-    this.resetWallet()
-    Console.log('loaded private key: ' + encrypted)
-    wallet = account
-    keyPair = JSON.parse(account)
-    localStorage.publicAddress = keyPair.address
-    localStorage.walletSha3Ae = e2e.getHash(account)
-    return true
-  },
-
-  resetPIN(oldPass, newPass){
-    if (!this.checkPassword(oldPass)) {
-      return false
-    }
-    let encrypted = localStorage.walletAe1
-    if (typeof encrypted === 'undefined') return encrypted
-    let account = aes256.decrypt(oldPass, encrypted) // decrypt encrypted
-    Console.log('loaded private key: ' + encrypted)
-    wallet = account
-    keyPair = JSON.parse(account)
-
-    let keyPairStr = JSON.stringify(keyPair)
-    Console.log('saveWallet with password', newPass)
-    localStorage.walletSha3Ae = e2e.getHash(keyPairStr)
-    encrypted = aes256.encrypt(newPass, keyPairStr)
-    Console.log('encrypted private key', encrypted)
-    localStorage.walletAe1 = encrypted // web3.eth.accounts.wallet.accounts[0].privateKey // encrypt wallet
-    localStorage.publicAddress = keyPair.address
-    this.resetWallet()
-    return true
-  },
-
-  checkUser: async function (api,userID, callback) {
-    axios.get(api + '/user/check?userId=' + userID)
       .then((res) => {
         callback(res.data);
       })
@@ -168,74 +57,20 @@ export default {
         callback(null)
       })
   },
-  restoreIdentityAtStart: async function(password, phrase){
-    this.resetWallet()
-    keyPair = await e2e.newKeyPair(phrase)
-    wallet = JSON.stringify(keyPair)
-    this.saveWallet(keyPair, password)
-    return true
+
+  async requestForToken(keyPair) {
+    this.setURLandNetwork("https://beta.recheck.io", "ae")
+    let token = await e2e.login(keyPair)
+    localStorage.lastRtnToken = token
+  },
+  async requestForTokenShareIdentity(keyPair) {
+    this.setURLandNetwork("https://beta.recheck.io", "ae")
+    let token = await e2e.login(keyPair)
+    localStorage.rtnTokenForShareIdentity = token
   },
 
-  importPrivateKey: async function (password, phrase) {
-    if (!this.checkPassword(password)) {
-      return 'authError'
-    }
-    this.restoreIdentityAtStart(password,phrase)
-  },
+  async checkTx(dataChainID, userChainID){
+    return await e2e.checkHash(dataChainID, userChainID)
+  }
 
-  doLogin: async function (password, _challenge, callback) {
-    Console.log('pass', password)
-
-    if (!this.checkPassword(password)) {
-      callback('authError');      
-      return 'authError'
-    } else {
-      this.loadWallet(password)
-    } 
-
-    var challenge = _challenge.substring(_challenge.lastIndexOf('/') + 1, _challenge.length)    
-    Console.log('challenge', challenge)
-    try {
-      let token = await e2e.loginWithChallenge(challenge, keyPair)
-      localStorage.lastRtnToken = token
-      Console.log(token)
-      callback(false)
-    } catch(error) {
-      Console.error(error);
-      callback(error)
-    }
-    this.resetWallet()
-    return true
-  },
-
-  doExecSelection: async function (password, _selection, callback) {
-    Console.log('pass', password)
-
-    if (!this.checkPassword(password)) {
-      callback('authError');      
-      return 'authError'
-    } else {
-      this.loadWallet(password)
-    } 
-
-    try {
-      await e2e.login(keyPair)      
-      let token = await e2e.execSelection(_selection, keyPair)
-      Console.log(token)
-      callback(false)
-    } catch(error) {
-      Console.error(error);
-      callback(error)
-    }
-    this.resetWallet()
-    return true
-  },
-
-  privateKey: function () {
-    return wallet
-  },
-
-  wallet() {
-    return keyPair
-  },
 }
