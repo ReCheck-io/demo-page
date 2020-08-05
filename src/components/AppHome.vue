@@ -6,7 +6,7 @@
           <v-toolbar dense>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-            <v-toolbar-title>ReCheck services demo page</v-toolbar-title>
+            <v-toolbar-title>ReCheck API Test Page</v-toolbar-title>
 
             <v-spacer></v-spacer>
 
