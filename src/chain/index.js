@@ -34,11 +34,11 @@ export default {
   },
 
   clearWallet() {
-    localStorage.wallet = null
+    localStorage.removeItem('wallet')
   },
 
   clearWalletShare() {
-    localStorage.walletShare = null
+    localStorage.removeItem('walletShare')
   },
 
   async getKeysShare() {
