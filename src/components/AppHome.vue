@@ -284,9 +284,7 @@
               </v-layout>
             </v-container>
             <v-card-title>
-              <div>
-                Bear in mind that the transactions do need some time before they are recorded on the blockchain. 
-              </div>
+              <div>Bear in mind that the transactions do need some time before they are recorded on the blockchain.</div>
             </v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -295,20 +293,31 @@
             </v-card-actions>
             <div v-if="transactions.length >0">
               <ul>
-                <li
-                  v-for="tx in transactions.slice(1)"
-                  :key="tx.trailHash"
-                > <span>Chain ID of the data </span><b> {{ tx.dataId }}</b> <br>
-                <span>The Chain ID of the one who executed the transaction </span> <b>{{ tx.executor }}</b> <br>
-                <span>The recepient of the file (in this demo it will matter only about the sharing) </span> <b>{{tx.recepient}}</b> <br>
-                <span>The type of request executed </span> <b> {{tx.requestType}}</b> <br>
-                <span>The unique ID of the transaction </span> <b>{{tx.trailHash}}</b> <br>
-                <span>The timestamp of the transacition </span> <b>{{tx.timestamp}}</b> <br> <br>
-                 </li>
+                <li v-for="tx in transactions.slice(1)" :key="tx.trailHash">
+                  <span>Chain ID of the data</span>
+                  <b>{{ tx.dataId }}</b>
+                  <br />
+                  <span>The Chain ID of the one who executed the transaction</span>
+                  <b>{{ tx.executor }}</b>
+                  <br />
+                  <span>The recepient of the file (in this demo it will matter only about the sharing)</span>
+                  <b>{{tx.recepient}}</b>
+                  <br />
+                  <span>The type of request executed</span>
+                  <b>{{tx.requestType}}</b>
+                  <br />
+                  <span>The unique ID of the transaction</span>
+                  <b>{{tx.trailHash}}</b>
+                  <br />
+                  <span>The timestamp of the transacition</span>
+                  <b>{{tx.timestamp}}</b>
+                  <br />
+                  <br />
+                </li>
               </ul>
             </div>
           </v-card>
-          </div>
+        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -327,6 +336,7 @@ export default {
     this.hasShareAccount();
     this.reset();
     this.renderKeys();
+    this.renderShareKeys();
   },
   data() {
     return {
@@ -365,22 +375,28 @@ export default {
   },
   methods: {
     renderKeys() {
-      this.address = JSON.parse(localStorage.wallet).address;
-      this.publicKey = JSON.parse(localStorage.wallet).publicKey;
-      this.privateKey = JSON.parse(localStorage.wallet).secretKey;
-      this.publicEncKey = JSON.parse(localStorage.wallet).publicEncKey;
-      this.privateEncKey = JSON.parse(localStorage.wallet).secretEncKey;
-      this.phrase = JSON.parse(localStorage.wallet).phrase;
-      this.addressShare = JSON.parse(localStorage.walletShare).address;
-      this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
-      this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
-      this.publicEncKeyShare = JSON.parse(
-        localStorage.walletShare
-      ).publicEncKey;
-      this.privateEncKeyShare = JSON.parse(
-        localStorage.walletShare
-      ).secretEncKey;
-      this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
+      if (this.pinned) {
+        this.address = JSON.parse(localStorage.wallet).address;
+        this.publicKey = JSON.parse(localStorage.wallet).publicKey;
+        this.privateKey = JSON.parse(localStorage.wallet).secretKey;
+        this.publicEncKey = JSON.parse(localStorage.wallet).publicEncKey;
+        this.privateEncKey = JSON.parse(localStorage.wallet).secretEncKey;
+        this.phrase = JSON.parse(localStorage.wallet).phrase;
+      }
+    },
+    renderShareKeys() {
+      if (this.pinnedShare) {
+        this.addressShare = JSON.parse(localStorage.walletShare).address;
+        this.publicKeyShare = JSON.parse(localStorage.walletShare).publicKey;
+        this.privateKeyShare = JSON.parse(localStorage.walletShare).secretKey;
+        this.publicEncKeyShare = JSON.parse(
+          localStorage.walletShare
+        ).publicEncKey;
+        this.privateEncKeyShare = JSON.parse(
+          localStorage.walletShare
+        ).secretEncKey;
+        this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
+      }
     },
     hasAccount() {
       if (localStorage.wallet) {
@@ -535,32 +551,30 @@ export default {
     },
 
     async txHistory() {
-        this.transactions = [{}];
-        let pubAddrress = this.address.substring(3);
-        let tx = await chain.checkTx(this.dataUploadRes, pubAddrress);
-        for (let i = 0; i < tx.length; i++) {
-          let res = {};
-          let dataId = tx[i].dataId;
-          let executor = tx[i].executorId;
-          let recepient = tx[i].recepientId;
-          let requestType = tx[i].requestType;
-          let trailHash = tx[i].trailHash;
-          let timestamp = tx[i].txReceiptTimestamp;
-          res = {
-            dataId: dataId,
-            executor: executor,
-            recepient: recepient,
-            requestType: requestType,
-            trailHash: trailHash,
-            timestamp: timestamp,
-          };
-          this.transactions.push(res);
-        }
-        if(this.transactions.length <2){
-          alert("transactions are still recording")
-        }
-
-    
+      this.transactions = [{}];
+      let pubAddrress = this.address.substring(3);
+      let tx = await chain.checkTx(this.dataUploadRes, pubAddrress);
+      for (let i = 0; i < tx.length; i++) {
+        let res = {};
+        let dataId = tx[i].dataId;
+        let executor = tx[i].executorId;
+        let recepient = tx[i].recepientId;
+        let requestType = tx[i].requestType;
+        let trailHash = tx[i].trailHash;
+        let timestamp = tx[i].txReceiptTimestamp;
+        res = {
+          dataId: dataId,
+          executor: executor,
+          recepient: recepient,
+          requestType: requestType,
+          trailHash: trailHash,
+          timestamp: timestamp,
+        };
+        this.transactions.push(res);
+      }
+      if (this.transactions.length < 2) {
+        alert("transactions are still recording");
+      }
     },
 
     instructions() {
