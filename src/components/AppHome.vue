@@ -68,9 +68,11 @@
           <v-card-actions v-if="pinned">
             <v-spacer></v-spacer>
             <v-btn @click="clearWallet" dark color="red">Reset identity</v-btn>
+            <v-btn class="btn" @click="modalKeys = !modalKeys">Show the code</v-btn>
             <v-spacer />
           </v-card-actions>
         </v-card>
+        <keys-example v-if="modalKeys"></keys-example>
         <div v-if="nextStep >0">
           <v-card v-if="pinned" style="margin-top:1rem">
             <v-container fill-height fluid>
@@ -92,10 +94,14 @@
             <v-card-actions v-if="pinned">
               <v-spacer></v-spacer>
               <v-btn @click="requestToken" dark color="green">Get Token</v-btn>
+              <v-btn class="btn" @click="modalToken = !modalToken">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
           </v-card>
         </div>
+
+        <token-example v-if="modalToken"></token-example>
+
         <div v-if="nextStep>1">
           <v-card v-if="pinned" height="500px" style="margin-top:1rem">
             <v-container fill-height fluid>
@@ -163,6 +169,7 @@
                           <b>{{this.idUploadRes}}</b>
                         </p>
                       </div>
+                      <v-btn class="btn" @click="modalUpload = !modalUpload">Show the code</v-btn>
                     </div>
                   </div>
                 </v-flex>
@@ -170,6 +177,9 @@
             </v-container>
           </v-card>
         </div>
+
+        <upload-example v-if="modalUpload"></upload-example>
+
         <v-card style="margin-top:1rem">
           <v-container fill-height fluid>
             <v-layout fill-height>
@@ -246,10 +256,14 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn @click="share" dark color="green">Share file</v-btn>
+              <v-btn class="btn" @click="modalShare = !modalShare">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
           </v-card>
         </div>
+
+        <share-example v-if="modalShare"></share-example>
+
         <!-- Sign -->
         <div v-if="nextStep > 3">
           <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
@@ -269,10 +283,14 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn @click="sign" dark color="green">Sign</v-btn>
+              <v-btn class="btn" @click="modalSign = !modalSign">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
           </v-card>
         </div>
+
+        <sign-example v-if="modalSign"></sign-example>
+
         <!-- Tx History -->
         <div v-if="nextStep > 4">
           <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
@@ -289,6 +307,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn @click="txHistory" dark color="green">Transaction History</v-btn>
+              <v-btn class="btn" @click="modalTXActions = !modalTXActions">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
             <div v-if="transactions.length >0">
@@ -317,6 +336,35 @@
               </ul>
             </div>
           </v-card>
+          
+          <tx-actions-example v-if="modalTXActions"></tx-actions-example>
+                  <!-- Download   v-if="nextStep > 5"-->
+        <div>
+          <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+            <v-container fill-height fluid>
+              <v-layout fill-height>
+                <v-flex>
+                  <h2>Download of the file</h2>
+                </v-flex>
+              </v-layout>
+            </v-container>
+            <v-card-title>
+              <div>
+                By clicking the button below you will be able to download the file you uploaded. In the code section you can see
+                how to implement this function.
+              </div>
+            </v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="sign" dark color="green">Download</v-btn>
+              <v-btn class="btn" @click="modalDownload = !modalDownload">Show the code</v-btn>
+              <v-spacer />
+            </v-card-actions>
+          </v-card>
+        </div>
+
+        <download-example v-if="modalDownload"></download-example>
+
         </div>
       </v-flex>
     </v-layout>
@@ -325,6 +373,13 @@
 
 <script>
 import chain from "../chain";
+import keysExample from "../components/codeExamples/keysExample.vue";
+import downloadExample from "../components/codeExamples/downloadExample.vue";
+import shareExample from "../components/codeExamples/shareExample.vue";
+import signExample from "../components/codeExamples/signExample.vue";
+import txActionsExample from "../components/codeExamples/txActionsExample.vue";
+import uploadExample from "../components/codeExamples/uploadExample.vue";
+import tokenExample from "../components/codeExamples/tokenExample.vue";
 
 const STATUS_INITIAL = 0,
   STATUS_SAVING = 1,
@@ -337,6 +392,15 @@ export default {
     this.reset();
     this.renderKeys();
     this.renderShareKeys();
+  },
+  components: {
+    keysExample,
+    downloadExample,
+    shareExample,
+    signExample,
+    txActionsExample,
+    uploadExample,
+    tokenExample,
   },
   data() {
     return {
@@ -371,6 +435,13 @@ export default {
       signRes: "",
       nextStep: 1,
       transactions: [{}],
+      modalDownload: false,
+      modalKeys: false,
+      modalShare: false,
+      modalSign: false,
+      modalTXActions: false,
+      modalUpload: false,
+      modalToken: false,
     };
   },
   methods: {
