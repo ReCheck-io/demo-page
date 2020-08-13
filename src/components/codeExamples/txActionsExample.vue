@@ -71,7 +71,7 @@
         code: dedent`
           // having a .js file to import the library
 
-          index.js {
+          chain.js {
           let e2e = require('recheck-clientjs-library')
           
           var wallet = null
@@ -79,37 +79,85 @@
           var keyPair = null
           
           export default {
-              async getKeys() {
-                // to create specific keys, specific 12 concatenated words can be passed as a string instead of the null 
-                keyPair = await e2e.newKeyPair(null)
-                wallet = JSON.stringify(keyPair)
-                localStorage.wallet = wallet;
-              },
-            }
+           
+           async checkTx(dataChainID, userChainID){
+                return await e2e.checkHash(dataChainID, userChainID)
+              }
+           
+           }
 
           END OF FILE  
           }
 
-        // this index.js file is then imported into the vue file
+        // this chain.js file is then imported into the vue file
 
         <template>
-        <p> publicAddress and blockchain ID: <strong>{{this.address}}</strong> </p>
+        <div v-if="transactions.length >0">
+              <ul>
+                <li v-for="tx in transactions.slice(1)" :key="tx.trailHash">
+                  <span>Chain ID of the data</span>
+                  <b>{{ tx.dataId }}</b>
+                  <br />
+                  <span>The Chain ID of the one who executed the transaction</span>
+                  <b>{{ tx.executor }}</b>
+                  <br />
+                  <span>The recepient of the file (in this demo it will matter only about the sharing)</span>
+                  <b>{{tx.recepient}}</b>
+                  <br />
+                  <span>The type of request executed</span>
+                  <b>{{tx.requestType}}</b>
+                  <br />
+                  <span>The unique ID of the transaction</span>
+                  <b>{{tx.trailHash}}</b>
+                  <br />
+                  <span>The timestamp of the transacition</span>
+                  <b>{{tx.timestamp}}</b>
+                  <br />
+                  <br />
+                </li>
+              </ul>
+            </div>
         </template>
 
           <script>
-           import index from "pathToTheFile/index.js"
+           import chain from "pathToTheFile/chain.js"
             export default {
             data() {
               return {
-              address: "",
+              transactions: [{}],
               }
             },
             methods: {
-               async createNewIdentity() {
-               await chain.getKeys();
+               async txHistory() {
+                this.transactions = [{}];
+                let pubAddrress = this.address.substring(3);
                 
-               this.address = JSON.parse(localStorage.wallet).address;
-              }
+                let tx = await chain.checkTx(this.dataUploadRes, pubAddrress);
+                
+                for (let i = 0; i < tx.length; i++) {
+                  let res = {};
+                  let dataId = tx[i].dataId;
+                  let executor = tx[i].executorId;
+                  let recepient = tx[i].recepientId;
+                  let requestType = tx[i].requestType;
+                  let trailHash = tx[i].trailHash;
+                  let timestamp = tx[i].txReceiptTimestamp;
+                  res = {
+                    dataId: dataId,
+                    executor: executor,
+                    recepient: recepient,
+                    requestType: requestType,
+                    trailHash: trailHash,
+                    timestamp: timestamp,
+                  };
+                  this.transactions.push(res);
+                }
+                //because it has as first object an empty one. 
+                if (this.transactions.length < 2) {
+                  alert("transactions are still recording");
+                }
+              },
+
             }
           }
 
@@ -156,7 +204,7 @@
 <style lang="scss" scoped>
   .example {
     display: flex;
-    height: 25%;
+    height: 300px;
 
     .codemirror,
     .pre {

@@ -157,7 +157,7 @@
 <style lang="scss" scoped>
   .example {
     display: flex;
-    height: 25%;
+    height:300px;
 
     .codemirror,
     .pre {
