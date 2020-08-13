@@ -71,7 +71,7 @@
         code: dedent`
           // having a .js file to import the library
 
-          index.js {
+          chain.js {
           let e2e = require('recheck-clientjs-library')
           
           var wallet = null
@@ -79,38 +79,57 @@
           var keyPair = null
           
           export default {
-              async getKeys() {
-                // to create specific keys, specific 12 concatenated words can be passed as a string instead of the null 
-                keyPair = await e2e.newKeyPair(null)
-                wallet = JSON.stringify(keyPair)
-                localStorage.wallet = wallet;
-              },
+                async download(fileChainID, userChainID, keys){
+                  return await e2e.open(fileChainID, userChainID, keys)
+                },
             }
 
           END OF FILE  
           }
 
-        // this index.js file is then imported into the vue file
+        // this chain.js file is then imported into the vue file
 
         <template>
-        <p> publicAddress and blockchain ID: <strong>{{this.address}}</strong> </p>
+         <v-btn @click="prepareFile" dark color="green">Prepare to download</v-btn>
+         <v-btn v-if="ready"> <a :href= this.payload  :download = fileName >Download</a></v-btn>
         </template>
 
           <script>
-           import index from "pathToTheFile/index.js"
+           import chain from "pathToTheFile/chain.js"
             export default {
+            
             data() {
               return {
-              address: "",
+              dataUploadRes: "",
+              fileName:"",
+              payload:"",
+              ready:false,
               }
             },
             methods: {
-               async createNewIdentity() {
-               await chain.getKeys();
-                
-               this.address = JSON.parse(localStorage.wallet).address;
-              }
-            }
+               async prepareFile() {
+                      let pubAddrress = this.address.substring(3);
+                      let res = await chain
+                        .download(
+                          this.dataUploadRes,
+                          pubAddrress,
+                          JSON.parse(localStorage.wallet)
+                        )
+                        .catch((err) => {
+                          let i;
+                          let text = "";
+                          for (i = 0; i < err.length; i++) {
+                            text += err[i].message.EN + " \n ";
+                          }
+                          alert(text);
+                        });
+                      if(res){
+                      this.fileName = res.dataName + res.dataExtension
+                      this.payload = "data:" + res.dataExtension +  ";base64," + res.payload
+                      this.ready = true;
+                      }
+                    },
+                }
           }
 
           ${'<\/script>'}

@@ -30,6 +30,7 @@
     "elliptic": "^6.5.2",
     "eth-crypto": "^1.6.0",
     "firebase": "^5.11.1",
+    "fs": "0.0.1-security",
     "keccak256": "^1.0.0",
     "recheck-clientjs-library": "^1.0.18-beta.1",
     "register-service-worker": "^1.7.1",

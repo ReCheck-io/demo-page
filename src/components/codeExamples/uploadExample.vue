@@ -182,10 +182,6 @@
                           });
 
                         if (this.uploadRes) {
-                          // the recording on the blockchain needs some time, 
-                          // the timeout is so that on the demo page the user is forced to wait before the next click
-                      
-                          setTimeout(function () {}, 10000);
                           alert("File has been uploaded");
                           this.dataUploadRes = this.uploadRes.dataId;
                           this.idUploadRes = this.uploadRes.userId;

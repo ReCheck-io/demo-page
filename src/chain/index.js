@@ -1,5 +1,6 @@
 const Console = require('../logger')
 let e2e = require('recheck-clientjs-library')
+const fs = require('fs');
 // var aes256 = require('aes256')
 import axios from 'axios'
 
@@ -19,6 +20,10 @@ export default {
     return await e2e.store(fileObj, userChainId, userChainIdPubKey);
   },
 
+  async download(fileChainID, userChainID, keys){
+    return await e2e.open(fileChainID, userChainID, keys)
+  },
+
   async getKeys() {
     keyPair = await e2e.newKeyPair(null)
     wallet = JSON.stringify(keyPair)
@@ -32,6 +37,7 @@ export default {
   async signFile(dataID, recipientID, keyPair) {
     return await e2e.sign(dataID, recipientID, keyPair)
   },
+
 
   clearWallet() {
     localStorage.removeItem('wallet')

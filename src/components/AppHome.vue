@@ -313,22 +313,22 @@
             <div v-if="transactions.length >0">
               <ul>
                 <li v-for="tx in transactions.slice(1)" :key="tx.trailHash">
-                  <span>Chain ID of the data</span>
+                  <span>Chain ID of the data </span>
                   <b>{{ tx.dataId }}</b>
                   <br />
-                  <span>The Chain ID of the one who executed the transaction</span>
+                  <span>The Chain ID of the one who executed the transaction </span>
                   <b>{{ tx.executor }}</b>
                   <br />
-                  <span>The recepient of the file (in this demo it will matter only about the sharing)</span>
+                  <span>The recepient of the file (in this demo it will matter only about the sharing) </span>
                   <b>{{tx.recepient}}</b>
                   <br />
-                  <span>The type of request executed</span>
+                  <span>The type of request executed </span>
                   <b>{{tx.requestType}}</b>
                   <br />
-                  <span>The unique ID of the transaction</span>
+                  <span>The unique ID of the transaction </span>
                   <b>{{tx.trailHash}}</b>
                   <br />
-                  <span>The timestamp of the transacition</span>
+                  <span>The timestamp of the transacition </span>
                   <b>{{tx.timestamp}}</b>
                   <br />
                   <br />
@@ -336,11 +336,11 @@
               </ul>
             </div>
           </v-card>
-          
-          <tx-actions-example v-if="modalTXActions"></tx-actions-example>
-                  <!-- Download   v-if="nextStep > 5"-->
-        <div>
-          <v-card style="margin-top:1rem" v-if="this.dataUploadRes">
+        </div>
+        <tx-actions-example v-if="modalTXActions"></tx-actions-example>
+        <!-- Download -->
+        <div v-if="nextStep > 4">
+          <v-card style="margin-top:1rem"  v-if="this.dataUploadRes">
             <v-container fill-height fluid>
               <v-layout fill-height>
                 <v-flex>
@@ -356,7 +356,8 @@
             </v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn @click="sign" dark color="green">Download</v-btn>
+              <v-btn @click="prepareFile" dark color="green">Prepare to download</v-btn>
+              <v-btn v-if="ready"> <a :href= this.payload  :download = fileName >Download</a></v-btn>
               <v-btn class="btn" @click="modalDownload = !modalDownload">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
@@ -364,8 +365,6 @@
         </div>
 
         <download-example v-if="modalDownload"></download-example>
-
-        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -442,6 +441,9 @@ export default {
       modalTXActions: false,
       modalUpload: false,
       modalToken: false,
+      filePayload:"",
+      fileName:"",
+      ready:false
     };
   },
   methods: {
@@ -453,6 +455,31 @@ export default {
         this.publicEncKey = JSON.parse(localStorage.wallet).publicEncKey;
         this.privateEncKey = JSON.parse(localStorage.wallet).secretEncKey;
         this.phrase = JSON.parse(localStorage.wallet).phrase;
+      }
+    },
+    async prepareFile() {
+      let pubAddrress = this.address.substring(3);
+        this.$root.$emit("progress_on");
+      let res = await chain
+        .download(
+          this.dataUploadRes,
+          pubAddrress,
+          JSON.parse(localStorage.wallet)
+        )
+        .catch((err) => {
+          let i;
+          let text = "";
+          for (i = 0; i < err.length; i++) {
+            text += err[i].message.EN + " \n ";
+          }
+          alert(text);
+        });
+
+      this.$root.$emit("progress_off");
+      if(res){
+      this.fileName = res.dataName + res.dataExtension
+      this.payload = "data:" + res.dataExtension +  ";base64," + res.payload
+      this.ready = true;
       }
     },
     renderShareKeys() {
@@ -686,7 +713,6 @@ export default {
             alert(text);
           });
         if (this.uploadRes) {
-          setTimeout(function () {}, 10000);
           alert("File has been uploaded");
           this.dataUploadRes = this.uploadRes.dataId;
           this.idUploadRes = this.uploadRes.userId;
