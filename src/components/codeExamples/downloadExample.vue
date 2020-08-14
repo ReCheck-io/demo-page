@@ -79,9 +79,11 @@
           var keyPair = null
           
           export default {
+
                 async download(fileChainID, userChainID, keys){
                   return await e2e.open(fileChainID, userChainID, keys)
                 },
+            
             }
 
           END OF FILE  
@@ -108,28 +110,28 @@
             },
             methods: {
                async prepareFile() {
-                      let pubAddrress = this.address.substring(3);
-                      let res = await chain
-                        .download(
-                          this.dataUploadRes,
-                          pubAddrress,
-                          JSON.parse(localStorage.wallet)
-                        )
-                        .catch((err) => {
-                          let i;
-                          let text = "";
-                          for (i = 0; i < err.length; i++) {
-                            text += err[i].message.EN + " \n ";
-                          }
-                          alert(text);
-                        });
-                      if(res){
-                      this.fileName = res.dataName + res.dataExtension
-                      this.payload = "data:" + res.dataExtension +  ";base64," + res.payload
-                      this.ready = true;
-                      }
-                    },
+                let pubAddrress = this.address.substring(3);
+                let res = await chain
+                  .download(
+                    this.dataUploadRes,
+                    pubAddrress,
+                    JSON.parse(localStorage.wallet)
+                  )
+                  .catch((err) => {
+                    let i;
+                    let text = "";
+                    for (i = 0; i < err.length; i++) {
+                      text += err[i].message.EN + " \/n ";
+                    }
+                    alert(text);
+                  });
+                if(res){
+                this.fileName = res.dataName + res.dataExtension
+                this.payload = "data:" + res.dataExtension +  ";base64," + res.payload
+                this.ready = true;
                 }
+              },
+            }
           }
 
           ${'<\/script>'}

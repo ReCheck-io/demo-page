@@ -96,26 +96,26 @@
            
            export default {
             methods: {
-      async share() {
-      
-      //the token for the sender is always needed
-      if (!this.token) {  return this.noToken(); }
-      
-      if (!localStorage.walletShare) {  return this.noUser(); }
+                async share() {
+                
+                //the token for the sender is always needed
+                if (!this.token) {  return this.noToken(); }
+                
+                if (!localStorage.walletShare) {  return this.noUser(); }
 
-      let res = await chain.shareFile( this.dataUploadRes, this.addressShare, JSON.parse(localStorage.wallet))
-        .catch((err) => {
-          let i;
-          let text = "";
-          for (i = 0; i < err.length; i++) {
-            text += err[i].message.EN + " \n ";
-          }
-          alert(text);
-        });
-      if (res) {
-        alert("Share has been successful!");
-      }
-    },
+                let res = await chain.shareFile( this.dataUploadRes, this.addressShare, JSON.parse(localStorage.wallet))
+                  .catch((err) => {
+                    let i;
+                    let text = "";
+                    for (i = 0; i < err.length; i++) {
+                      text += err[i].message.EN + " \/n ";
+                    }
+                    alert(text);
+                  });
+                if (res) {
+                  alert("Share has been successful!");
+                }
+              },
             }
           }
 

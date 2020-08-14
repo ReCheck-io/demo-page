@@ -94,34 +94,35 @@
 
         <template>
         ...
-                      <form enctype="multipart/form-data" novalidate v-if="isInitial || isSaving">
-                        <div class="dropbox">
-                          <input
-                            type="file"
-                            multiple
-                            :name="uploadFieldName"
-                            :disabled="isSaving"
-                            @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"
-                            class="input-file"
-                          />
+            <form enctype="multipart/form-data" novalidate v-if="isInitial || isSaving">
+              <div class="dropbox">
+                <input
+                  type="file"
+                  multiple
+                  :name="uploadFieldName"
+                  :disabled="isSaving"
+                  @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"
+                  class="input-file"
+                />
         ...
 
-        <div>
-                        <h2>Result</h2>
-                        <p>
-                          When the transaction is successful the server will return as a result the blockchain id of the file
-                          as well as the blockchain id of the identity that initiated the transaction, the address of our test user.
-                        </p>
-                        <p>
-                          dataID:
-                          <b>{{this.dataUploadRes}}</b>
-                        </p>
-                        <p>
-                          userId:
-                          <b>{{this.idUploadRes}}</b>
-                        </p>
-                      </div>
-          </div>
+      <div>
+          <h2>Result</h2>
+          <p>
+            When the transaction is successful the server will return as a result the blockchain id of the file
+            as well as the blockchain id of the identity that initiated the transaction, the address of our test user.
+          </p>
+          <p>
+            dataID:
+            <b>{{this.dataUploadRes}}</b>
+          </p>
+          <p>
+            userId:
+            <b>{{this.idUploadRes}}</b>
+          </p>
+        </div>
+      </div>
+       
         </template>
 
           <script>
@@ -134,67 +135,67 @@
               }
             },
             methods: {
-                   filesChange(fieldName, fileList) {
-                      
-                      // the token is important to make the API call
-                      if (!this.token) {
-                        return this.noToken();
-                      }
-                      
-                      // choosing the blockchain and environment where we want our data stored
-                      chain.setURLandNetwork("https://beta.recheck.io", "ae", this.token);
-                     
-                     // handle file changes
-                      if (!fileList.length) return;
-                      let splitFileName = fileList[0].name.split(".");
-                     
-                     // read as Binary so that it can be digested and crypted
-                      const reader = new FileReader();
-                      
-                     // the uploading of the file has to happen in this async function 
-                     // so that the file can be crypted and stored once it is being read as binary 
-                      reader.onload = async (e) => {
-                        this.$emit("load", e.target.result);
-                        
-                        //A String object in which each character in the string is treated as a byte of binary data
-                        this.payload = btoa(e.target.result);
-                        
-                        let fileObj = {};
-                        
-                        //creating {} and preparing for the data to be stored
+            filesChange(fieldName, fileList) {
+                  
+                  // the token is important to make the API call
+                  if (!this.token) {
+                    return this.noToken();
+                  }
+                  
+                  // choosing the blockchain and environment where we want our data stored
+                  chain.setURLandNetwork("https://beta.recheck.io", "ae", this.token);
+                  
+                  // handle file changes
+                  if (!fileList.length) return;
+                  let splitFileName = fileList[0].name.split(".");
+                  
+                  // read as Binary so that it can be digested and crypted
+                  const reader = new FileReader();
+                  
+                  // the uploading of the file has to happen in this async function 
+                  // so that the file can be crypted and stored once it is being read as binary 
+                  reader.onload = async (e) => {
+                    this.$emit("load", e.target.result);
                     
-                        fileObj.payload = this.payload;
-                        (fileObj.dataName = splitFileName[0]),
-                        (fileObj.dataExtension = "." + splitFileName[1]);
-                        fileObj.category = "OTHER";
-                        fileObj.keywords = " ";
-                        
-                        this.$root.$emit("progress_on");
+                    //A String object in which each character in the string is treated as a byte of binary data
+                    this.payload = btoa(e.target.result);
+                    
+                    let fileObj = {};
+                    
+                    //creating {} and preparing for the data to be stored
+                
+                    fileObj.payload = this.payload;
+                    (fileObj.dataName = splitFileName[0]),
+                    (fileObj.dataExtension = "." + splitFileName[1]);
+                    fileObj.category = "OTHER";
+                    fileObj.keywords = " ";
+                    
+                    this.$root.$emit("progress_on");
 
-                        this.uploadRes = await chain.upload(fileObj, this.address, this.publicEncKey)
-                          .catch((err) => {
-                            let i;
-                            let text = "";
-                            for (i = 0; i < err.length; i++) {
-                              text += err[i].message.EN + " \n ";
-                            }
-                            alert(text);
-                          });
-
-                        if (this.uploadRes) {
-                          alert("File has been uploaded");
-                          this.dataUploadRes = this.uploadRes.dataId;
-                          this.idUploadRes = this.uploadRes.userId;
-                          this.$root.$emit("walletEvent");
-                          this.$root.$emit("progress_off");
-                        } else if (!this.uploadRes) {
-                          this.$root.$emit("walletEvent");
-                          this.$root.$emit("progress_off");
+                    this.uploadRes = await chain.upload(fileObj, this.address, this.publicEncKey)
+                      .catch((err) => {
+                        let i;
+                        let text = "";
+                        for (i = 0; i < err.length; i++) {
+                          text += err[i].message.EN + " \/n ";
                         }
-                      };
-                      reader.readAsBinaryString(fileList[0]);
-                    },
-                  },
+                        alert(text);
+                      });
+
+                    if (this.uploadRes) {
+                      alert("File has been uploaded");
+                      this.dataUploadRes = this.uploadRes.dataId;
+                      this.idUploadRes = this.uploadRes.userId;
+                      this.$root.$emit("walletEvent");
+                      this.$root.$emit("progress_off");
+                    } else if (!this.uploadRes) {
+                      this.$root.$emit("walletEvent");
+                      this.$root.$emit("progress_off");
+                    }
+                  };
+                  reader.readAsBinaryString(fileList[0]);
+                },
+              },
             }
           }
 

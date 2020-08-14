@@ -157,7 +157,6 @@
                   alert("transactions are still recording");
                 }
               },
-
             }
           }
 

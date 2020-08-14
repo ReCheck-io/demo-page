@@ -108,7 +108,7 @@
                     let i;
                     let text = "";
                     for (i = 0; i < err.length; i++) {
-                      text += err[i].message.EN + " \n ";
+                      text += err[i].message.EN + " \/n ";
                     }
                     alert(text);
                   });
