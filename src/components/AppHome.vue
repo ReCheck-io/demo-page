@@ -357,7 +357,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn @click="prepareFile" dark color="green">Prepare to download</v-btn>
-              <v-btn v-if="ready"> <a :href= this.payload  :download = fileName >Download</a></v-btn>
+              <v-btn v-if="ready" @click="ready = !ready">  <a :href= this.payload  :download = fileName >Download</a></v-btn>
               <v-btn class="btn" @click="modalDownload = !modalDownload">Show the code</v-btn>
               <v-spacer />
             </v-card-actions>
@@ -584,7 +584,8 @@ export default {
         localStorage.walletShare
       ).secretEncKey;
       this.phraseShare = JSON.parse(localStorage.walletShare).phrase;
-      await this.requestToken();
+      await chain.requestForToken(JSON.parse(localStorage.wallet));
+      this.token = localStorage.lastRtnToken;
     },
     reset() {
       // reset form to initial state
