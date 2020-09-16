@@ -11,7 +11,8 @@ export default new Router({
       path: '/',
       name: 'AppHome',
       default: false,
-      component: AppHome
+      component: AppHome,
+      title: "ReCheck functionality test"
     },
     {
       path: '*',

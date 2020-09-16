@@ -1,7 +1,5 @@
 const Console = require('../logger')
 let e2e = require('recheck-clientjs-library')
-const fs = require('fs');
-// var aes256 = require('aes256')
 import axios from 'axios'
 
 // eslint-disable-next-line
@@ -9,8 +7,6 @@ var wallet = null
 var walletShare = null
 var keyPair = null
 
-// let environment = process.env.NODE_ENV.split(",")
-// let apiUrl = environment[0]
 export default {
   setURLandNetwork: function (apiURL, network, token) {
     e2e.init(apiURL, network, token);

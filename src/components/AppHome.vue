@@ -2,11 +2,15 @@
   <v-container scrollable>
     <v-layout scrollable>
       <v-flex xs12>
+              <vue-headful
+            title="ReCheck functionality test"
+            description="Live ReCheck functionality test page eluminating the most important actions on the service"
+        />
         <v-card color="grey lighten-4" flat tile>
           <v-toolbar dense>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-            <v-toolbar-title>ReCheck API Test Page</v-toolbar-title>
+            <v-toolbar-title>Live ReCheck functionality test page</v-toolbar-title>
 
             <v-spacer></v-spacer>
 

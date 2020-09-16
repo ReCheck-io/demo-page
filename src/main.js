@@ -5,13 +5,10 @@ import './plugins/vuetify'
 import router from './router'
 import VueQrcodeReader from 'vue-qrcode-reader'
 import chain from './chain'
-// import './registerServiceWorker'
 import Console from './logger'
-// var SocialSharing = require('vue-social-sharing');
+import vueHeadful from 'vue-headful';
 
-// var notifier;
-
-// Vue.use(SocialSharing);
+Vue.component('vue-headful', vueHeadful);
 
 (async () => {
   var userAgent = window.navigator.userAgent;
